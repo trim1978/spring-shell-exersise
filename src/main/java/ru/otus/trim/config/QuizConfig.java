@@ -15,7 +15,7 @@ public class QuizConfig {
 
     private int enough;
 
-    private String locale;
+    private String locale = "";
 
 //    public QuizConfig (){
 //        System.out.println ("CREATING");
