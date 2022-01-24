@@ -7,6 +7,7 @@ import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellMethodAvailability;
+import ru.otus.trim.config.QuizConfig;
 import ru.otus.trim.domain.QuizAction;
 import ru.otus.trim.domain.Student;
 import ru.otus.trim.events.QuizActionPublisher;
@@ -21,7 +22,9 @@ public class QuizCommandComponent {
 
     private final StudentRequestService studentRequest;
 
-    private final QuizCheckService checkService;
+    //private final QuizCheckService checkService;
+
+    private final QuizConfig quizConfig;
 
     private Student student;
 
@@ -29,7 +32,7 @@ public class QuizCommandComponent {
     @ShellMethodAvailability(value = "isQuizStartAvailable")
     public String quizRun() {
         QuizAction quizAction = eventsPublisher.runQuiz();
-        boolean complete = checkService.checkQuizAction(quizAction);
+        boolean complete = quizAction.isComplete() && quizAction.getRightAnsweredQuestionsCount() >= quizConfig.getEnough();
         return complete ? "done" : "fault";
     }
 
@@ -41,8 +44,8 @@ public class QuizCommandComponent {
 
     @ShellMethod(value = "Set enough right answers count", key = "set_enough")
     public String setEnough(int enough) {
-        checkService.setEnough(enough);
-        return "enough is " + enough;
+        quizConfig.setEnough(enough);
+        return "enough is " + quizConfig.getEnough();
     }
 
     @ShellMethod(value = "Who is here", key = "who")

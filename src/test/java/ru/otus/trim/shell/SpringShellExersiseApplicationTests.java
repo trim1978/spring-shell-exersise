@@ -1,13 +1,100 @@
 package ru.otus.trim.shell;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.shell.CommandNotCurrentlyAvailable;
+import org.springframework.shell.Shell;
+import org.springframework.test.annotation.DirtiesContext;
+import ru.otus.trim.events.QuizActionPublisher;
+import ru.otus.trim.service.IOService;
+import ru.otus.trim.service.OpenedConsoleIOService;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DisplayName("Тест команд shell")
+@ComponentScan(basePackages = "ru.otus.trim")
 @SpringBootTest
 class SpringShellExersiseApplicationTests {
 
-	@Test
-	void contextLoads() {
+	private static final String GREETING_FIRSTNAME = "Enter first name: ";
+	private static final String GREETING_LASTNAME = "Enter last name: ";
+	private static final String GREETING_TOTAL = "Welcome %s %s !";
+	private static final String GREETING_END = "Student is ready";
+
+	private static final String DEFAULT_FIRSTNAME = "Ivan";
+	private static final String DEFAULT_LASTNAME = "Ivanov";
+
+
+	private static final String COMMAND_ENTER = "enter";
+	private static final String COMMAND_START = "start";
+	private static final String COMMAND_RUN = "run";
+	private static final String COMMAND_WHO = "who";
+	private static final String COMMAND_SET= "set_enough";
+
+	private static final String COMMAND_ENOUGH = "set_enough";
+
+	@MockBean
+	private QuizActionPublisher eventsPublisher;
+
+	private ByteArrayOutputStream bos;
+	private IOService ioService;
+
+	@BeforeEach
+	void setUp() {
+		//System.out.println(Thread.currentThread().getName());
+
+		bos = new ByteArrayOutputStream();
+		ioService = new OpenedConsoleIOService(System.in, new PrintStream(bos));
 	}
 
+	@Autowired
+	private Shell shell;
+
+	@DisplayName("должен вернуть ошибку при старте опроса без представления пользователя")
+	@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+	@Test
+	void shouldReturnExceptionWherTryStartWithoutEnter() {
+		Object res = shell.evaluate(() -> COMMAND_START);
+		assertThat(res).isInstanceOf(CommandNotCurrentlyAvailable.class);
+	}
+	@DisplayName("должен возвращать < none > при команде who до представления")
+	@Test
+	void shouldReturnNoneBeforeLoginCommandEvaluated() {
+		String res = (String) shell.evaluate(() -> COMMAND_WHO);
+		assertThat(res).isEqualTo("< none >");
+	}
+
+	@DisplayName("должен возвращать допустимое количество правильных ответов, после их задания")
+	@Test
+	void shouldReturnEnoughWhenEnoughWasSetted() {
+		for (int enough = 0; enough < 10; enough++) {
+			final String arg = COMMAND_SET + " " + enough;
+			String res = (String) shell.evaluate(() -> arg);
+			assertThat(res).isEqualTo(String.format("enough is %d", enough));
+		}
+	}
+
+	@DisplayName("должен возвращать приветствие для каманды задания студента")
+	@Test
+	void shouldReturnExpectedGreetingAfterLoginCommandEvaluated() {
+		String res1 = (String) shell.evaluate(() -> COMMAND_ENTER);
+		ioService.out(DEFAULT_FIRSTNAME);
+		ioService.out(DEFAULT_LASTNAME);
+		//String res2 = (String) shell.evaluate(() -> DEFAULT_FIRSTNAME);
+		//String res3 = (String) shell.evaluate(() -> DEFAULT_LASTNAME);
+		//System.out.println(res);
+		assertThat(res1).isEqualTo(String.format(GREETING_FIRSTNAME));
+		//assertThat(res2).isEqualTo(String.format(GREETING_LASTNAME));
+		//assertThat(res3).isEqualTo(String.format(GREETING_TOTAL, DEFAULT_FIRSTNAME, DEFAULT_LASTNAME));
+
+	}
 }

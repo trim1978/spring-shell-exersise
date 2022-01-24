@@ -12,31 +12,31 @@ import java.util.Scanner;
 public class StudentRequestServiceByInput implements StudentRequestService{
     private final MessageSource msg;
     private final Locale locale;
+    private final IOService ioService;
 
-    public StudentRequestServiceByInput(QuizConfig cfg, MessageSource msg) {
-
+    public StudentRequestServiceByInput(QuizConfig cfg, MessageSource msg, IOService ioService) {
         this.msg = msg;
         this.locale = Locale.forLanguageTag(cfg.getLocale());
+        this.ioService = ioService;
     }
 
     @Override
     public Student requestStudent() {
-        Scanner scaner = new Scanner(System.in);
-        System.out.print(msg.getMessage(
+        ioService.out(msg.getMessage(
                 "quiz.enter.firstname",
                 null,
                 locale
         ) + ": ");
 
-        String firstName = scaner.nextLine();
-        System.out.print(msg.getMessage(
+        String firstName = ioService.readString();
+        ioService.out(msg.getMessage(
                 "quiz.enter.lastname",
                 null,
                 locale
         ) + ": ");
 
-        String lastName = scaner.nextLine();
-        System.out.println(msg.getMessage(
+        String lastName = ioService.readString();
+        ioService.out(msg.getMessage(
                 "quiz.enter.welcome",
                 new String[] {firstName, lastName},
                 locale

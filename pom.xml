@@ -9,12 +9,13 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>ru.otus.trim</groupId>
-	<artifactId>shell</artifactId>
+	<artifactId>spring-shell-exersise</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>spring-shell-exersise</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>11</java.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>

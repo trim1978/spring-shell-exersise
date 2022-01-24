@@ -9,7 +9,6 @@ import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "ru.otus.trim")
 public class SpringShellExersiseApplication {
 
 	public static void main(String[] args) {

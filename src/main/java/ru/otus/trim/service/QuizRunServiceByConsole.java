@@ -1,5 +1,6 @@
 package ru.otus.trim.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import ru.otus.trim.config.QuizConfig;
@@ -8,25 +9,30 @@ import ru.otus.trim.domain.Answer;
 import ru.otus.trim.domain.Question;
 import ru.otus.trim.domain.QuizAction;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class QuizRunServiceByConsole implements QuizRunService {
     final QuizDao quizDao;
     final String locale;
     final MessageSource msg;
+    private final IOService ioService;
 
-    public QuizRunServiceByConsole(QuizConfig cfg, MessageSource msg, QuizDao dao){
+    public QuizRunServiceByConsole(QuizConfig cfg, MessageSource msg, QuizDao dao, IOService ioService){
         this.quizDao = dao;
         this.locale = cfg.getLocale();
         this.msg = msg;
-        //this.quizActionDao = quizActionDao;
+        this.ioService = ioService;
     }
+
     @Override
     public QuizAction runQuiz() {
         QuizAction quizAction = quizDao.getQuiz().createQuizAction();
         runQuiz(quizAction);
-        System.out.println(quizAction.isComplete() + " " + quizAction.getRightAnsweredQuestionsCount());
+        //System.out.println(quizAction.isComplete() + " " + quizAction.getRightAnsweredQuestionsCount());
         return quizAction;
     }
 
@@ -35,19 +41,18 @@ public class QuizRunServiceByConsole implements QuizRunService {
     }
 
     private List<Answer> outQuestion (Question question){
-        System.out.println(question.question + " ?");
+        ioService.out(question.question + " ?");
         int count = 0;
         List<Answer> answers = question.getAnswers();
         for (Answer a : answers){
-            System.out.println((++count)+ ". " + a.answerText);
+            ioService.out((++count)+ ". " + a.answerText);
         }
         return answers;
     }
 
     private String [] readAnswers (){
-        System.out.print(msg.getMessage("quiz.enter.question", new String [] {}, Locale.forLanguageTag(locale)) + ": ");
-        Scanner scaner = new Scanner(System.in);
-        String answer = scaner.nextLine();
+        ioService.out(msg.getMessage("quiz.enter.question", new String [] {}, Locale.forLanguageTag(locale)) + ": ");
+        String answer = ioService.readString();
         return answer.split(" ");
     }
 
