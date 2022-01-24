@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @DisplayName("Тест команд shell")
 @ComponentScan(basePackages = "ru.otus.trim")
@@ -27,7 +28,7 @@ class SpringShellExersiseApplicationTests {
 
 	private static final String GREETING_FIRSTNAME = "Enter first name: ";
 	private static final String GREETING_LASTNAME = "Enter last name: ";
-	private static final String GREETING_TOTAL = "Welcome %s %s !";
+	private static final String GREETING_TOTAL = "Welcome %s %s !\\nStudent is ready";
 	private static final String GREETING_END = "Student is ready";
 
 	private static final String DEFAULT_FIRSTNAME = "Ivan";
@@ -45,16 +46,8 @@ class SpringShellExersiseApplicationTests {
 	@MockBean
 	private QuizActionPublisher eventsPublisher;
 
-	private ByteArrayOutputStream bos;
+	@MockBean
 	private IOService ioService;
-
-	@BeforeEach
-	void setUp() {
-		//System.out.println(Thread.currentThread().getName());
-
-		bos = new ByteArrayOutputStream();
-		ioService = new OpenedConsoleIOService(System.in, new PrintStream(bos));
-	}
 
 	@Autowired
 	private Shell shell;
@@ -67,6 +60,7 @@ class SpringShellExersiseApplicationTests {
 		assertThat(res).isInstanceOf(CommandNotCurrentlyAvailable.class);
 	}
 	@DisplayName("должен возвращать < none > при команде who до представления")
+	@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 	@Test
 	void shouldReturnNoneBeforeLoginCommandEvaluated() {
 		String res = (String) shell.evaluate(() -> COMMAND_WHO);
@@ -86,15 +80,9 @@ class SpringShellExersiseApplicationTests {
 	@DisplayName("должен возвращать приветствие для каманды задания студента")
 	@Test
 	void shouldReturnExpectedGreetingAfterLoginCommandEvaluated() {
+		when(ioService.readString()).thenReturn(DEFAULT_FIRSTNAME);
+		when(ioService.readString()).thenReturn(DEFAULT_LASTNAME);
 		String res1 = (String) shell.evaluate(() -> COMMAND_ENTER);
-		ioService.out(DEFAULT_FIRSTNAME);
-		ioService.out(DEFAULT_LASTNAME);
-		//String res2 = (String) shell.evaluate(() -> DEFAULT_FIRSTNAME);
-		//String res3 = (String) shell.evaluate(() -> DEFAULT_LASTNAME);
-		//System.out.println(res);
-		assertThat(res1).isEqualTo(String.format(GREETING_FIRSTNAME));
-		//assertThat(res2).isEqualTo(String.format(GREETING_LASTNAME));
-		//assertThat(res3).isEqualTo(String.format(GREETING_TOTAL, DEFAULT_FIRSTNAME, DEFAULT_LASTNAME));
-
+		assertThat(res1).isEqualTo("Student is ready");
 	}
 }
