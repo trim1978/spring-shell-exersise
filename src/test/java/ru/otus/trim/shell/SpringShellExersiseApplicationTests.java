@@ -26,22 +26,13 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class SpringShellExersiseApplicationTests {
 
-	private static final String GREETING_FIRSTNAME = "Enter first name: ";
-	private static final String GREETING_LASTNAME = "Enter last name: ";
-	private static final String GREETING_TOTAL = "Welcome %s %s !\\nStudent is ready";
-	private static final String GREETING_END = "Student is ready";
-
-	private static final String DEFAULT_FIRSTNAME = "Ivan";
-	private static final String DEFAULT_LASTNAME = "Ivanov";
-
 
 	private static final String COMMAND_ENTER = "enter";
 	private static final String COMMAND_START = "start";
-	private static final String COMMAND_RUN = "run";
 	private static final String COMMAND_WHO = "who";
 	private static final String COMMAND_SET= "set_enough";
 
-	private static final String COMMAND_ENOUGH = "set_enough";
+	//private static final String COMMAND_ENOUGH = "set_enough";
 
 	@MockBean
 	private QuizActionPublisher eventsPublisher;
@@ -59,6 +50,7 @@ class SpringShellExersiseApplicationTests {
 		Object res = shell.evaluate(() -> COMMAND_START);
 		assertThat(res).isInstanceOf(CommandNotCurrentlyAvailable.class);
 	}
+
 	@DisplayName("должен возвращать < none > при команде who до представления")
 	@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 	@Test
@@ -80,8 +72,8 @@ class SpringShellExersiseApplicationTests {
 	@DisplayName("должен возвращать приветствие для каманды задания студента")
 	@Test
 	void shouldReturnExpectedGreetingAfterLoginCommandEvaluated() {
-		when(ioService.readString()).thenReturn(DEFAULT_FIRSTNAME);
-		when(ioService.readString()).thenReturn(DEFAULT_LASTNAME);
+		when(ioService.readString()).thenReturn("Ivan");
+		when(ioService.readString()).thenReturn("Ivanov");
 		String res1 = (String) shell.evaluate(() -> COMMAND_ENTER);
 		assertThat(res1).isEqualTo("Student is ready");
 	}
