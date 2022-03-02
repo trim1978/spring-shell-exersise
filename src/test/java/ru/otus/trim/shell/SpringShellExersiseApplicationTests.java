@@ -26,14 +26,6 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class SpringShellExersiseApplicationTests {
 
-
-	private static final String COMMAND_ENTER = "enter";
-	private static final String COMMAND_START = "start";
-	private static final String COMMAND_WHO = "who";
-	private static final String COMMAND_SET= "set_enough";
-
-	//private static final String COMMAND_ENOUGH = "set_enough";
-
 	@MockBean
 	private QuizActionPublisher eventsPublisher;
 
@@ -47,7 +39,7 @@ class SpringShellExersiseApplicationTests {
 	@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 	@Test
 	void shouldReturnExceptionWherTryStartWithoutEnter() {
-		Object res = shell.evaluate(() -> COMMAND_START);
+		Object res = shell.evaluate(() -> "start");
 		assertThat(res).isInstanceOf(CommandNotCurrentlyAvailable.class);
 	}
 
@@ -55,7 +47,7 @@ class SpringShellExersiseApplicationTests {
 	@DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 	@Test
 	void shouldReturnNoneBeforeLoginCommandEvaluated() {
-		String res = (String) shell.evaluate(() -> COMMAND_WHO);
+		String res = (String) shell.evaluate(() -> "who");
 		assertThat(res).isEqualTo("< none >");
 	}
 
@@ -63,7 +55,7 @@ class SpringShellExersiseApplicationTests {
 	@Test
 	void shouldReturnEnoughWhenEnoughWasSetted() {
 		for (int enough = 0; enough < 10; enough++) {
-			final String arg = COMMAND_SET + " " + enough;
+			final String arg = "set_enough" + " " + enough;
 			String res = (String) shell.evaluate(() -> arg);
 			assertThat(res).isEqualTo(String.format("enough is %d", enough));
 		}
@@ -74,7 +66,7 @@ class SpringShellExersiseApplicationTests {
 	void shouldReturnExpectedGreetingAfterLoginCommandEvaluated() {
 		when(ioService.readString()).thenReturn("Ivan");
 		when(ioService.readString()).thenReturn("Ivanov");
-		String res1 = (String) shell.evaluate(() -> COMMAND_ENTER);
+		String res1 = (String) shell.evaluate(() -> "enter");
 		assertThat(res1).isEqualTo("Student is ready");
 	}
 }
